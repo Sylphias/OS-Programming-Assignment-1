@@ -28,6 +28,7 @@ public class ProcessManagement {
 
         // Using index of ProcessGraph, loop through each ProcessGraphNode, to check whether it is ready to run
         // Continues running while not all the nodes have been executed.
+        // graphError will change to true if any of the processes fail in running their processes.
         while(!allNodesExecuted() && !graphError) {
             //mark all the runnable nodes
             markRunnable();
