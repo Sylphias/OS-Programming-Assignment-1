@@ -35,7 +35,11 @@ public class ProcessManagement {
             runNodes();
         }
 
-        System.out.println("All process finished successfully");
+        // This handles the error if the file the process is acting on does not exist.
+        if(!graphError)
+            System.out.println("All process finished successfully");
+        else
+            System.out.println("There was an error with the graph");
     }
 
     /**
