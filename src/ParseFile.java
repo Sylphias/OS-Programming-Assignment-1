@@ -9,7 +9,6 @@ public class ParseFile {
             int index=0;
             while(fileIn.hasNext()){
                 String line=fileIn.nextLine();
-                System.out.println(line);
                 String[] quatiles= line.split(":");
                 if (quatiles.length!=4) {
                     System.out.println("Wrong input format!");

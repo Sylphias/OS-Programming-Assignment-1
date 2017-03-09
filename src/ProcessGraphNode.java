@@ -14,12 +14,20 @@ public class ProcessGraphNode {
     private String command;
     private boolean runnable;
     private boolean executed;
+    private boolean running; // This field is to notify us if the node is running
 
 
     public ProcessGraphNode(int nodeId ) {
         this.nodeId = nodeId;
         this.runnable=false;
+        this.running=false;
         this.executed=false;
+    }
+
+
+
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 
     public void setRunnable() {
@@ -30,6 +38,10 @@ public class ProcessGraphNode {
 
     public void setExecuted() {
         this.executed = true;
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
     public boolean isRunnable() {
@@ -98,7 +110,6 @@ public class ProcessGraphNode {
             if (!parent.isExecuted())
                 ans=false;
         }
-
         return ans;
     }
 }
