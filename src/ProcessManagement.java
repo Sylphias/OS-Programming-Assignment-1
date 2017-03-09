@@ -36,7 +36,7 @@ public class ProcessManagement {
             runNodes();
         }
 
-        // This handles the error if the file the process is acting on does not exist.
+        // This handles the error if the file the process is acting on does not exist. or the process cannot run at all
         if(!graphError)
             System.out.println("All process finished successfully");
         else
@@ -104,6 +104,11 @@ class RunProcess extends Thread{
     public void run(){
             ProcessBuilder pb = new ProcessBuilder();
 
+            // Stops the process from even running if the file does not exist
+            if(!node.getInputFile().exists()) {
+                ProcessManagement.graphError = true;
+                return;
+            }
             // Handles the input if it expects an input from stdin and stdout
             if (!node.getInputFile().getName().equals("stdin"))
                 pb.redirectInput(node.getInputFile());
