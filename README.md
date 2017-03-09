@@ -7,5 +7,13 @@ have completed executing.
 
 
 ##How to Compile
+###Running on IDE
+For this project we used Intellij to run our files. So for user.dir is the root folder of the project
+
+
+```
+> javac ProcessManagement.java
+>
+```
 
 ##What this Program Does
