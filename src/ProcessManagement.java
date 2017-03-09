@@ -3,9 +3,9 @@ import java.io.File;
 public class ProcessManagement {
 
     //set the working directory
-    private static File currentDirectory = new File("/home/jit/progassignment1/java/");
+    private static File currentDirectory = new File(System.getProperty("user.dir"));
     //set the instructions file
-    private static File instructionSet = new File("testproc.txt");
+    private static File instructionSet = new File("graph-file1");
     public static Object lock=new Object();
 
     public static void main(String[] args) throws InterruptedException {
@@ -14,14 +14,15 @@ public class ProcessManagement {
         ParseFile.generateGraph(new File(currentDirectory + "/"+instructionSet));
 
         // Print the graph information
-	// WRITE YOUR CODE
+	    ProcessGraph.printGraph();
 
 
         // Using index of ProcessGraph, loop through each ProcessGraphNode, to check whether it is ready to run
-                // check if all the nodes are executed
-                // WRITE YOUR CODE
+            // check if all the nodes are executed
+            // WRITE YOUR CODE
+            
 
-                //mark all the runnable nodes
+            //mark all the runnable nodes
 	        // WRITE YOUR CODE
 
                 //run the node if it is runnable

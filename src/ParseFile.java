@@ -45,8 +45,6 @@ public class ParseFile {
                         node.setRunnable();
                     }
                 }
-
-
                 index++;
             }
         } catch (Exception e){
