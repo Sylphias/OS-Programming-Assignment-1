@@ -9,6 +9,7 @@ public class ParseFile {
             int index=0;
             while(fileIn.hasNext()){
                 String line=fileIn.nextLine();
+                System.out.println(line);
                 String[] quatiles= line.split(":");
                 if (quatiles.length!=4) {
                     System.out.println("Wrong input format!");
@@ -33,19 +34,20 @@ public class ParseFile {
                 ProcessGraph.nodes.get(index).setInputFile(new File(quatiles[2]));
                 //setup output
                 ProcessGraph.nodes.get(index).setOutputFile(new File(quatiles[3]));
-                //setup parent
-                for (ProcessGraphNode node : ProcessGraph.nodes) {
-                    for (ProcessGraphNode childNode : node.getChildren()) {
-                        ProcessGraph.nodes.get(childNode.getNodeId()).addParent(ProcessGraph.nodes.get(node.getNodeId()));
-                    }
-                }
-                //mark initial runnable
-                for (ProcessGraphNode node:ProcessGraph.nodes) {
-                    if (node.getParents().isEmpty()){
-                        node.setRunnable();
-                    }
-                }
+
                 index++;
+            }
+            //setup parent
+            for (ProcessGraphNode node : ProcessGraph.nodes) {
+                for (ProcessGraphNode childNode : node.getChildren()) {
+                    ProcessGraph.nodes.get(childNode.getNodeId()).addParent(ProcessGraph.nodes.get(node.getNodeId()));
+                }
+            }
+            //mark initial runnable
+            for (ProcessGraphNode node:ProcessGraph.nodes) {
+                if (node.getParents().isEmpty()){
+                    node.setRunnable();
+                }
             }
         } catch (Exception e){
             System.out.println("File not found!");
