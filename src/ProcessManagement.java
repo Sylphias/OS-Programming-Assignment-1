@@ -1,13 +1,19 @@
 import java.io.File;
 import java.io.IOException;
 
+
+/**
+ * Programming Assignment 1
+ * Done by:
+ * Koh Kai Wei 1001471
+ * Chan Wei Ren 1001459
+ **/
 public class ProcessManagement {
 
     //set the working directory
-//    private static ArrayList<ProcessGraphNode>
     private static File currentDirectory = new File(System.getProperty("user.dir"));
     //set the instructions file
-    private static File instructionSet = new File("graph-file2");
+    private static File instructionSet = new File("graph-file1");
     public static Object lock=new Object();
 
     public static void main(String[] args) throws InterruptedException {
@@ -18,9 +24,7 @@ public class ProcessManagement {
         // Print the graph information
 	    ProcessGraph.printGraph();
 
-
         // Using index of ProcessGraph, loop through each ProcessGraphNode, to check whether it is ready to run
-
         // Continues running while not all the nodes have been executed.
         while(!allNodesExecuted()) {
             //mark all the runnable nodes
@@ -31,7 +35,13 @@ public class ProcessManagement {
 
         System.out.println("All process finished successfully");
     }
-//
+
+    /**
+     * Method Name: allNodesExecuted
+     * Check if all nodes have been executed. If not all nodes have been executed, it will return false.
+     * If not it will return true
+     **/
+
     public static boolean allNodesExecuted(){
         for (ProcessGraphNode node : ProcessGraph.nodes) {
             if(!node.isExecuted())
@@ -40,6 +50,12 @@ public class ProcessManagement {
         return true;
     }
 
+
+    /**
+     * Method Name: markRunnable
+     * This method check if all of the node's parents have executed and that the node is not running or has not executed
+     * If those conditions are fulfilled, then the node is marked as runnable
+     **/
     public static void markRunnable(){
         for (ProcessGraphNode node : ProcessGraph.nodes) {
             if(node.allParentsExecuted() && !node.isRunning()&& !node.isExecuted())
@@ -47,6 +63,11 @@ public class ProcessManagement {
         }
     }
 
+    /**
+     * Method Name: runNodes
+     * This method checks if the node is runnable, running or has already executed.
+     * If all are false, we will then spawn a thread to run the process.
+    **/
     public static void runNodes(){
         for (ProcessGraphNode node: ProcessGraph.nodes) {
                 if (node.isRunnable() && !node.isRunning() && !node.isExecuted()) {
@@ -59,6 +80,15 @@ public class ProcessManagement {
 
 }
 
+/**
+ * Class Name: RunProcess
+ * This class will allow the process to spawn as a separate thread. It will also allow us to perform process specific adjustments in a separate thread.
+ *
+ * Class Methods:
+ * RunProcess(ProcessGraphNode node) - Constructor that takes in a ProcessGraphNode by reference
+ * Run() - Spawns the process that runs the command stored in the ProcessGraphNode.
+ *         It waits for the process to finish executing before setting the the node's status to executed.
+ **/
 class RunProcess extends Thread{
     ProcessGraphNode node;
     public RunProcess(ProcessGraphNode node) {
@@ -66,13 +96,18 @@ class RunProcess extends Thread{
     }
     public void run(){
             ProcessBuilder pb = new ProcessBuilder();
+
+            // Handles the input if it expects an input from stdin and stdout
             if (!node.getInputFile().getName().equals("stdin"))
                 pb.redirectInput(node.getInputFile());
             if (!node.getOutputFile().getName().equals("stdout"))
                 pb.redirectOutput(node.getOutputFile());
+
+            // Splits the command with spaces, this is to allow commands with multiple arguments to run properly
             pb.command(node.getCommand().split(" "));
 
             try {
+                // Starts process and waits for process to finish. Once process has finished, it sets the node to execution
                 System.out.println("Process Starting " + node.getNodeId());
                 Process p = pb.start();
                 p.waitFor();

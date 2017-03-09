@@ -1,6 +1,12 @@
 import java.io.File;
 import java.util.Scanner;
 
+/**
+ * Programming Assignment 1
+ * Done by:
+ * Koh Kai Wei 1001471
+ * Chan Wei Ren 1001459
+ **/
 public class ParseFile {
     //this method generates a ProcessGraph and store in ProcessGraph Class
     public static void generateGraph(File inputFile) {

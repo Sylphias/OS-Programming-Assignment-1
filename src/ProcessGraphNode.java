@@ -1,6 +1,20 @@
 import java.io.File;
 import java.util.ArrayList;
 
+
+/**
+ * Programming Assignment 1
+ * Done by:
+ * Koh Kai Wei 1001471
+ * Chan Wei Ren 1001459
+ *
+ * CHANGES : Added a running boolean to tell us if the process is running.
+ * METHODS :
+ *  isRunning - Returns a boolean representing if the node's command is running as a process
+ *  setRunning - sets running to true or false.
+ *
+ **/
+
 public class ProcessGraphNode {
 
     //point to all the parents

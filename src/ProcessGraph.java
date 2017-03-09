@@ -1,5 +1,12 @@
 import java.util.ArrayList;
 
+
+/**
+ * Programming Assignment 1
+ * Done by:
+ * Koh Kai Wei 1001471
+ * Chan Wei Ren 1001459
+ **/
 public class ProcessGraph {
     //an static ArrayList of ProcessGraphNode containing all the node of the graph
     public static ArrayList<ProcessGraphNode> nodes=new ArrayList<>();
@@ -14,7 +21,8 @@ public class ProcessGraph {
             nodes.add(new ProcessGraphNode(index));
         }
         else {
-            nodes.set(index, new ProcessGraphNode(index));
+            if(nodes.get(index)== null)
+                nodes.set(index, new ProcessGraphNode(index));
         }
     }
 
