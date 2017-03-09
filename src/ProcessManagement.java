@@ -14,9 +14,11 @@ public class ProcessManagement {
     private static File currentDirectory = new File(System.getProperty("user.dir"));
     //set the instructions file
     private static File instructionSet ;
+    public static boolean graphError;
     public static Object lock=new Object();
 
     public static void main(String[] args) throws InterruptedException {
+        graphError = false;
         instructionSet = new File(args[0]);
         //parse the instruction file and construct a data structure, stored inside ProcessGraph class
         ParseFile.generateGraph(new File(currentDirectory + "/"+instructionSet));
@@ -26,7 +28,7 @@ public class ProcessManagement {
 
         // Using index of ProcessGraph, loop through each ProcessGraphNode, to check whether it is ready to run
         // Continues running while not all the nodes have been executed.
-        while(!allNodesExecuted()) {
+        while(!allNodesExecuted() && !graphError) {
             //mark all the runnable nodes
             markRunnable();
             //run the node if it is runnable
@@ -115,9 +117,11 @@ class RunProcess extends Thread{
             } catch (InterruptedException ie) {
                 node.setRunning(false);
                 System.out.println(ie.getMessage());
+                ProcessManagement.graphError = true;
             } catch (IOException ioe) {
                 node.setRunning(false);
                 System.out.println(ioe.getMessage());
+                ProcessManagement.graphError = true;
             }
 
     }
