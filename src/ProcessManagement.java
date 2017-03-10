@@ -31,7 +31,15 @@ public class ProcessManagement {
         // graphError will change to true if any of the processes fail in running their processes.
         while(!allNodesExecuted() && !graphError) {
             //mark all the runnable nodes
-            markRunnable();
+            synchronized (lock) {
+                markRunnable();
+                if (checkCyclesExist()) {
+                    System.out.println("ERROR: Cycle Detected " +
+                            "daldhaldlajkdlajlkdjaljdlasjdlajldjasldjaldjasl");
+                    graphError = true;
+                    break;
+                }
+            }
             //run the node if it is runnable
             runNodes();
         }
@@ -41,6 +49,28 @@ public class ProcessManagement {
             System.out.println("All process finished successfully");
         else
             System.out.println("There was an error with the graph");
+    }
+
+    /**
+     * Method Name: checkCyclesExist()
+     * This Method checks if a cycle exists in the DAG, thus rendering the
+     * entire DAG un-runnable and breaks out of the loop.
+     * If all nodes are not runnable and and if not all the nodes have been
+     * executed it will return a true.
+     **/
+
+    public static boolean checkCyclesExist(){
+        boolean allNotRunnable = true, allExecuted = true;
+
+        for(ProcessGraphNode node : ProcessGraph.nodes){
+            if(node.isRunnable())
+                allNotRunnable = false;
+
+            if(!node.isExecuted())
+                allExecuted = false;
+        }
+
+        return allNotRunnable && !allExecuted;
     }
 
     /**
@@ -105,7 +135,12 @@ class RunProcess extends Thread{
             ProcessBuilder pb = new ProcessBuilder();
 
             // Stops the process from even running if the file does not exist
-            if(!node.getInputFile().exists()) {
+
+            if(!node.getInputFile().exists() && !node.getInputFile().getName().equals("stdin")) {
+                System.out.println("File: "+node.getInputFile().getName() +
+                        "" +
+                        " not " +
+                        "found!");
                 ProcessManagement.graphError = true;
                 return;
             }
@@ -123,7 +158,10 @@ class RunProcess extends Thread{
                 System.out.println("Process Starting " + node.getNodeId());
                 Process p = pb.start();
                 p.waitFor();
-                node.setExecuted();
+                synchronized (ProcessManagement.lock){
+                    node.setExecuted();
+                    node.setNotRunable();
+                }
             } catch (InterruptedException ie) {
                 node.setRunning(false);
                 System.out.println(ie.getMessage());
