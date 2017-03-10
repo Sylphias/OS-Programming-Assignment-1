@@ -7,6 +7,7 @@ import java.io.IOException;
  * Done by:
  * Koh Kai Wei 1001471
  * Chan Wei Ren 1001459
+ * Date: 09/03/2017
  **/
 public class ProcessManagement {
 
@@ -15,7 +16,7 @@ public class ProcessManagement {
     //set the instructions file
     private static File instructionSet ;
     public static boolean graphError;
-    public static Object lock=new Object();
+    public static Object lock = new Object();
 
     public static void main(String[] args) throws InterruptedException {
         graphError = false;
@@ -34,8 +35,7 @@ public class ProcessManagement {
             synchronized (lock) {
                 markRunnable();
                 if (checkCyclesExist()) {
-                    System.out.println("ERROR: Cycle Detected " +
-                            "daldhaldlajkdlajlkdjaljdlasjdlajldjasldjaldjasl");
+                    System.out.println("Error: Cycle Detected");
                     graphError = true;
                     break;
                 }
@@ -132,45 +132,43 @@ class RunProcess extends Thread{
         this.node = node;
     }
     public void run(){
-            ProcessBuilder pb = new ProcessBuilder();
+        ProcessBuilder pb = new ProcessBuilder();
 
-            // Stops the process from even running if the file does not exist
+        // Stops the process from even running if the file does not exist
 
-            if(!node.getInputFile().exists() && !node.getInputFile().getName().equals("stdin")) {
-                System.out.println("File: "+node.getInputFile().getName() +
-                        "" +
-                        " not " +
-                        "found!");
-                ProcessManagement.graphError = true;
-                return;
+        if(!node.getInputFile().exists() && !node.getInputFile().getName().equals("stdin")) {
+            System.out.println("File: "+node.getInputFile().getName() + " not found!");
+            ProcessManagement.graphError = true;
+            return;
+        }
+        // Handles the input if it expects an input from stdin and stdout
+        if (!node.getInputFile().getName().equals("stdin"))
+            pb.redirectInput(node.getInputFile());
+        if (!node.getOutputFile().getName().equals("stdout"))
+            pb.redirectOutput(node.getOutputFile());
+
+        // Splits the command with spaces, this is to allow commands with multiple arguments to run properly
+        pb.command(node.getCommand().split("\\s+"));
+
+        try {
+            // Starts process and waits for process to finish. Once process has finished, it sets the node to execution
+            System.out.println("Process " + node.getNodeId() + " starting");
+            Process p = pb.start();
+            p.waitFor();
+            System.out.println("Process " + node.getNodeId() + " has finished executing");
+            synchronized (ProcessManagement.lock){
+                node.setExecuted();
+                node.setNotRunnable();
             }
-            // Handles the input if it expects an input from stdin and stdout
-            if (!node.getInputFile().getName().equals("stdin"))
-                pb.redirectInput(node.getInputFile());
-            if (!node.getOutputFile().getName().equals("stdout"))
-                pb.redirectOutput(node.getOutputFile());
-
-            // Splits the command with spaces, this is to allow commands with multiple arguments to run properly
-            pb.command(node.getCommand().split(" "));
-
-            try {
-                // Starts process and waits for process to finish. Once process has finished, it sets the node to execution
-                System.out.println("Process Starting " + node.getNodeId());
-                Process p = pb.start();
-                p.waitFor();
-                synchronized (ProcessManagement.lock){
-                    node.setExecuted();
-                    node.setNotRunable();
-                }
-            } catch (InterruptedException ie) {
-                node.setRunning(false);
-                System.out.println(ie.getMessage());
-                ProcessManagement.graphError = true;
-            } catch (IOException ioe) {
-                node.setRunning(false);
-                System.out.println(ioe.getMessage());
-                ProcessManagement.graphError = true;
-            }
+        } catch (InterruptedException ie) {
+            node.setRunning(false);
+            System.out.println(ie.getMessage());
+            ProcessManagement.graphError = true;
+        } catch (IOException ioe) {
+            node.setRunning(false);
+            System.out.println(ioe.getMessage());
+            ProcessManagement.graphError = true;
+        }
 
     }
 }

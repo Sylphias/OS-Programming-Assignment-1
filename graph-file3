@@ -1,0 +1,5 @@
+echo hi there:1:stdin:cycle-out.txt
+echo wazzup:2:stdin:cycle2-out.txt
+echo hello:3:stdin:cycle3-out.txt
+echo lel:4:stdin:cycle4-out.txt
+echo oh no:2:stdin:cycle5-out.txt

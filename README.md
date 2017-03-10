@@ -105,9 +105,39 @@ children's parent variable set to itself, and every node that has no parents is
  
 The whole ArrayList is constantly looped through, and while there are still 
 nodes to be executed, the program checks every node to see if it's runnable.
- If it's parents have all executed, the node is marked as runnable. The 
- program also checks all nodes and runs a node as new thread if it is 
- runnable, is not already executed, or does not already have an instance of 
- it running.
+ If its parents have all executed, the node is marked as runnable. The 
+ program also checks all nodes and runs a node as new thread if it is runnable,
+ is not already executed, or does not already have an instance of it running.
 
 Once all nodes have been executed, the program ends.
+
+##Additional Notes
+
+The program has some features built in to prevent errors or deadlocks.
+
+For example, if a node is detected to be part of a cycle, the program stops 
+running and displays an error. It detects this by first iterating through 
+the nodes and setting the appropriate ones to runnable, and then checking if
+ all the nodes are **not** runnable **while** all of the nodes have not 
+ executed. If this is the case, there is a deadlock somewhere, caused by a 
+ cycle.
+ 
+ This feature, however, is prone to a race condition. Assume a 2-node graph,
+  with node 1 being a child of node 0. Assume that node 0 is **currently 
+  running**, and thus its runnable state is still set to true 
+ (runnable is only set to false once the process has finished executing). 
+ Assume, also, that the program has iterated through the nodes and set 
+ **no** nodes to runnable (in this case, node 0 has not finished executing 
+ and thus node 1 is not set to runnable). If, before the program checks for 
+ cycles, node 0 finishes and sets its own runnable to false, we are now in a
+  state where node 1's runnable state **can** be set to true, but has not 
+  been yet. At this point, the cycle checker detects a cycle since there are
+   no runnable processes, and all of them have not executed.
+   
+   This race condition can be prevented by atomicizing the setting of the 
+   nodes to runnable and checking for cycles, ensuring that it only checks 
+   for cycles once the proper runnable states have been set. Additionally, 
+   we have to atomicize the node setting itself to executed and setting its 
+   runnable state to false. We achieve this by putting a `synchronized(lock)
+   ` block around these two sections, ensuring that they are atomic with 
+   respect to each other.
