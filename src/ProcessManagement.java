@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.IOException;
 
-
 /**
  * Programming Assignment 1
  * Done by:
@@ -14,14 +13,15 @@ public class ProcessManagement {
     //set the working directory
     private static File currentDirectory = new File(System.getProperty("user.dir"));
     //set the instructions file
-    private static File instructionSet ;
+    private static File instructionSet;
     public static boolean graphError;
     public static Object lock = new Object();
 
     public static void main(String[] args) throws InterruptedException {
         graphError = false;
         instructionSet = new File(args[0]);
-        //parse the instruction file and construct a data structure, stored inside ProcessGraph class
+
+        // Parse the instruction file and construct a data structure, stored inside ProcessGraph class
         ParseFile.generateGraph(new File(currentDirectory + "/"+instructionSet));
 
         // Print the graph information
@@ -30,23 +30,26 @@ public class ProcessManagement {
         // Using index of ProcessGraph, loop through each ProcessGraphNode, to check whether it is ready to run
         // Continues running while not all the nodes have been executed.
         // graphError will change to true if any of the processes fail in running their processes.
-        while(!allNodesExecuted() && !graphError) {
-            //mark all the runnable nodes
+        while (!allNodesExecuted() && !graphError) {
+
             synchronized (lock) {
+                // Mark all the runnable nodes
                 markRunnable();
+                // Check for cycles
                 if (checkCyclesExist()) {
                     System.out.println("Error: Cycle Detected");
                     graphError = true;
                     break;
                 }
             }
-            //run the node if it is runnable
+
+            // Run the node if it is runnable
             runNodes();
         }
 
         // This handles the error if the file the process is acting on does not exist. or the process cannot run at all
-        if(!graphError)
-            System.out.println("All process finished successfully");
+        if (!graphError)
+            System.out.println("All processes finished successfully");
         else
             System.out.println("There was an error with the graph");
     }
@@ -63,10 +66,10 @@ public class ProcessManagement {
         boolean allNotRunnable = true, allExecuted = true;
 
         for(ProcessGraphNode node : ProcessGraph.nodes){
-            if(node.isRunnable())
+            if (node.isRunnable())
                 allNotRunnable = false;
 
-            if(!node.isExecuted())
+            if (!node.isExecuted())
                 allExecuted = false;
         }
 
@@ -79,9 +82,9 @@ public class ProcessManagement {
      * If not it will return true
      **/
 
-    public static boolean allNodesExecuted(){
+    public static boolean allNodesExecuted() {
         for (ProcessGraphNode node : ProcessGraph.nodes) {
-            if(!node.isExecuted())
+            if (!node.isExecuted())
                 return false;
         }
         return true;
@@ -93,7 +96,7 @@ public class ProcessManagement {
      * This method check if all of the node's parents have executed and that the node is not running or has not executed
      * If those conditions are fulfilled, then the node is marked as runnable
      **/
-    public static void markRunnable(){
+    public static void markRunnable() {
         for (ProcessGraphNode node : ProcessGraph.nodes) {
             if(node.allParentsExecuted() && !node.isRunning()&& !node.isExecuted())
                 node.setRunnable();
@@ -105,7 +108,7 @@ public class ProcessManagement {
      * This method checks if the node is runnable, running or has already executed.
      * If all are false, we will then spawn a thread to run the process.
     **/
-    public static void runNodes(){
+    public static void runNodes() {
         for (ProcessGraphNode node: ProcessGraph.nodes) {
                 if (node.isRunnable() && !node.isRunning() && !node.isExecuted()) {
                     RunProcess rp = new RunProcess(node);
@@ -126,7 +129,7 @@ public class ProcessManagement {
  * Run() - Spawns the process that runs the command stored in the ProcessGraphNode.
  *         It waits for the process to finish executing before setting the the node's status to executed.
  **/
-class RunProcess extends Thread{
+class RunProcess extends Thread {
     ProcessGraphNode node;
     public RunProcess(ProcessGraphNode node) {
         this.node = node;
@@ -135,12 +138,12 @@ class RunProcess extends Thread{
         ProcessBuilder pb = new ProcessBuilder();
 
         // Stops the process from even running if the file does not exist
-
-        if(!node.getInputFile().exists() && !node.getInputFile().getName().equals("stdin")) {
+        if (!node.getInputFile().exists() && !node.getInputFile().getName().equals("stdin")) {
             System.out.println("File: "+node.getInputFile().getName() + " not found!");
             ProcessManagement.graphError = true;
             return;
         }
+
         // Handles the input if it expects an input from stdin and stdout
         if (!node.getInputFile().getName().equals("stdin"))
             pb.redirectInput(node.getInputFile());
@@ -155,11 +158,11 @@ class RunProcess extends Thread{
             System.out.println("Process " + node.getNodeId() + " starting");
             Process p = pb.start();
             p.waitFor();
-            System.out.println("Process " + node.getNodeId() + " has finished executing");
             synchronized (ProcessManagement.lock){
                 node.setExecuted();
                 node.setNotRunnable();
             }
+            System.out.println("Process " + node.getNodeId() + " has finished executing");
         } catch (InterruptedException ie) {
             node.setRunning(false);
             System.out.println(ie.getMessage());
